@@ -1,70 +1,77 @@
 ﻿using System;
-using System.Reflection.PortableExecutable;
-class program
+using System.Diagnostics;
+
+public class Character
 {
-    static void Main(string[] args)
+    public string Name { get; set; }
+    public int MaxHp { get; set; }
+    public int CurrentHp { get; set; }
+    public int AttackPower { get; set; }
+    public int HealPower { get; set; }
+
+    public bool RageActive { get; set; } = false;
+
+    // Vi skapar konstrukor för att skapa karaktären
+    public Character(string name, int maxHp, int attackPower, int healPower)
     {
-        Random rand = new Random();
+        Name = name;
+        MaxHp = maxHp;
+        CurrentHp = maxHp; // 
+        AttackPower = attackPower;
+        HealPower = healPower;
+    }
 
-        // Vi skapar en spelare och en fiende
-        Character player = new Character("Spelare", 100, 15, 10);
-        Character enemy = new Character("fiende", 100, 13, 10);
+    // Nu ska vi skapa metod för att attackera
+    public void Attack(Character target, Random rand)
+{
+    int damage = AttackPower;
 
-        Console.WriteLine($"Du möter {enemy.Name}");
+    
+    if (rand.Next(1, 101) <= 20)  
+    {
+        damage = (int)(damage * 1.25);
+        Console.WriteLine($" Träff, {Name} gör extra skada! ");
+    }
+
+    target.TakeDamage(damage);
+    Console.WriteLine($"{Name} attackerar {target.Name} för {damage} skada.");
+}
 
 
-
-        // Spelets huvudlopp, vi kontrollera att deras poäng är 0 och kör spelet efter om det stämmer.
-        while (player.CurrentHp > 0 && enemy.CurrentHp > 0)
+    // Metod för att ta skada
+    public void TakeDamage(int amount)
+    {
+        CurrentHp -= amount;
+        if(CurrentHp < 0)
         {
-            // Börja med att visa deras Hp i consolen
-            Console.WriteLine($"Ditt Hp {player.CurrentHp}/ {player.MaxHp} | Fiendens Hp är {enemy.CurrentHp}/{enemy.MaxHp}");
-
-            Console.WriteLine("Välj [A] för att attackera eller [H] för att Heala:");
-            char choice = Console.ReadKey().KeyChar;
-
-            if (choice == 'a' || choice == 'A')
-            {
-                player.Attack(enemy,rand);
-            }
-            else if (choice == 'h' || choice == 'H')
-            {
-                player.Heal();
-            }
-            else
-            {
-                System.Console.WriteLine("Fel knapp, välj A eller H");
-            }
-
-            if(enemy.CurrentHp <= 0) break;
-
+            CurrentHp = 0;
+        }
+    }
+    
+    
+    // Metod för att hela
+    public void Heal()
+    {
+        CurrentHp += HealPower;
+        if(CurrentHp > MaxHp) //Vi kollar så det inte går över max HP
+        {
+            Console.WriteLine($"{Name} healar sig och får sitt {HealPower}");
             
-            Console.WriteLine("Nu är det fiendens tur");
-            int enemyChoice = rand.Next(1,11);
-            if(enemyChoice >= 5)
-            {
-                enemy.Attack(player,rand);
-            }
-            else
-            {
-                enemy.Heal();
-            }
-            enemy.checkRage(); //Vi kollar rage mode för fienden
-
-             Console.WriteLine("Tryck på valfri tanget för att starta nästa rad");
-             Console.ReadKey();
-        
         }
-        
-        if(player.CurrentHp > 0)
+    }
+    
+    public void checkRage()
+    {
+        if(!RageActive && CurrentHp <(MaxHp / 2))
         {
-            Console.WriteLine("Grattis, du vann och besegrade fineden!");
+            RageActive = true;
+            AttackPower =(int)(AttackPower * 1.5);
+            Console.WriteLine($"Rage mode är aktiverad för {Name} Attackraften ökar med 50%");
         }
-        else
-        {
-            Console.WriteLine("Du förlorade tvär!");
-        }
-       
+    }
 
-    } 
+
+   
+
+   
 }
